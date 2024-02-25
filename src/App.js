@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css'; 
 import { saveAs } from 'file-saver';
+import config from './config';
 
+const backendUrl = config.backendUrl;
 function App() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [backendConfig, setBackendConfig] = useState(null);
   useEffect(() => {
    
-    axios.get('/config/backend.json') 
+    axios.get(config.backendUrl) 
       .then(response => {
         setBackendConfig(response.data);
       })
@@ -23,7 +25,7 @@ function App() {
   const handleMessageSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('${backendConfig.baseUrl}/messages', { message });
+      const response = await axios.post(config.backendUrl+'/messages', { message });
       console.log('Message posted:', response.data);
       setMessage('');
       fetchMessages();
@@ -39,7 +41,7 @@ function App() {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get('${backendConfig.baseUrl}/messages');
+      const response = await axios.get(config.backendUrl+'/messages');
       setMessages(response.data);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -48,7 +50,7 @@ function App() {
 
   const handleClearMessages = async () => {
     try {
-      const response = await axios.delete('${backendConfig.baseUrl}/messages/clear');
+      const response = await axios.delete(config.backendUrl+'/messages/clear');
       console.log('Messages cleared:', response.data);
       fetchMessages(); // Refresh messages after clearing
     } catch (error) {
