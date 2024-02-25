@@ -6,11 +6,24 @@ import { saveAs } from 'file-saver';
 function App() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [backendConfig, setBackendConfig] = useState(null);
+  useEffect(() => {
+   
+    axios.get('/config/backend.json') 
+      .then(response => {
+        setBackendConfig(response.data);
+      })
+      .catch(error => {
+        console.error('Error loading backend configuration:', error);
+      });
+
+    fetchMessages();
+  }, []);
 
   const handleMessageSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://127.0.0.1:5000/messages', { message });
+      const response = await axios.post('${backendConfig.baseUrl}/messages', { message });
       console.log('Message posted:', response.data);
       setMessage('');
       fetchMessages();
@@ -26,7 +39,7 @@ function App() {
 
   const fetchMessages = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/messages');
+      const response = await axios.get('${backendConfig.baseUrl}/messages');
       setMessages(response.data);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -35,7 +48,7 @@ function App() {
 
   const handleClearMessages = async () => {
     try {
-      const response = await axios.delete('http://127.0.0.1:5000/messages/clear');
+      const response = await axios.delete('${backendConfig.baseUrl}/messages/clear');
       console.log('Messages cleared:', response.data);
       fetchMessages(); // Refresh messages after clearing
     } catch (error) {
